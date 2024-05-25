@@ -5,61 +5,71 @@ using UnityEngine;
 public class MoveScript : MonoBehaviour
 {
     private Vector3 initialPos;
-    public int speed;
     public float outBoundZ = 4.45f;
-    
-  
-    void Start()
+    private GameObject road;
+    private GameManager game;
+
+    private void Awake()
     {
-        GameObject road = GameObject.FindGameObjectWithTag("Road");
-        initialPos = road.transform.position; 
+        
     }
 
-    // Update is called once per frame
+    void Start()
+    {
+        game = FindAnyObjectByType<GameManager>();
+        road = GameObject.FindGameObjectWithTag("Road");
+        road = game.road;
+        initialPos = game.initialPos;
+
+        Debug.Log("Road is : " + road.name);
+        Debug.Log("Initial Pos is : " + initialPos);
+    }
+
     void Update()
     {
-        MovePlane();
-        MoveObj();
+        if (road != null)
+        {
+            MovePlane();
+            MoveObjects();
+        }
     }
 
     public void MovePlane()
     {
-        //float currentPosZ = gameObject.transform.position.z / 2;
-
-        GameObject road = GameObject.FindGameObjectWithTag("Road");
-
-        if (road.transform.position.z <= -5)
+        road = GameObject.FindGameObjectWithTag("Road");
+        if (road.transform.position.z >= 125)
         {
-            road.transform.position = initialPos;
+            road.transform.position -= new Vector3(0, 0, 1) * GameManager.Instance.Speed * Time.deltaTime;
         }
         else
         {
-            road.transform.position -= new Vector3(0, 0, 1) * speed * Time.deltaTime;
+            road.transform.position = initialPos;
+            Debug.Log("Initial Pos is here " + initialPos);
         }
     }
-        public void MoveObj()
-        {
-            // Move and destroy all obstacles
-            GameObject[] obstacles = GameObject.FindGameObjectsWithTag("Obsticle");
-            foreach (GameObject obstacle in obstacles)
-            {
-                obstacle.transform.position -= new Vector3(0, 0, 1) * speed * Time.deltaTime;
-                if (obstacle.transform.position.z <= -outBoundZ)
-                {
-                    Destroy(obstacle);
-                }
-            }
 
-            // Move and destroy all boosts
-            GameObject[] boosts = GameObject.FindGameObjectsWithTag("Boost");
-            foreach (GameObject boost in boosts)
+    public void MoveObjects()
+    {
+        // Move and destroy all obstacles
+        GameObject[] obstacles = GameObject.FindGameObjectsWithTag("Obsticle");
+        foreach (GameObject obstacle in obstacles)
+        {
+            obstacle.transform.position -= new Vector3(0, 0, 1) * GameManager.Instance.Speed * Time.deltaTime;
+            if (obstacle.transform.position.z <= -outBoundZ)
             {
-                boost.transform.position -= new Vector3(0, 0, 1) * speed * Time.deltaTime;
-                if (boost.transform.position.z <= -outBoundZ)
-                {
-                    Destroy(boost);
-                }
+                Destroy(obstacle);
             }
         }
-    
+
+        // Move and destroy all boosts
+        GameObject[] boosts = GameObject.FindGameObjectsWithTag("Boost");
+        foreach (GameObject boost in boosts)
+        {
+            boost.transform.position -= new Vector3(0, 0, 1) * GameManager.Instance.Speed * Time.deltaTime;
+            if (boost.transform.position.z <= -outBoundZ)
+            {
+                Destroy(boost);
+            }
+        }
+    }
 }
